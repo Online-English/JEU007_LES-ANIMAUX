@@ -125,10 +125,10 @@ let selectedVocabularyLevel = 1;
 
 // --- CONFIGURATION DES BADGES ---
 const badgesDatabase = [
-    { id: "first_perfect", title: "Sans Faute !", desc: "Faire un 10/10 en QCM ou Writing", icon: "🏅", color: "bg-yellow-500" },
-    { id: "streak_15", title: "Inarrêtable", desc: "Atteindre une série de 15 bonnes réponses", icon: "🔥", color: "bg-orange-500" },
-    { id: "time_20", title: "Chasseur de Chrono", desc: "Marquer 20 points en Time Attack", icon: "⚡", color: "bg-cyan-500" },
-    { id: "polyglotte", title: "Polyglotte", desc: "Débloquer le niveau 2 de vocabulaire", icon: "🗣️", color: "bg-purple-500" }
+    { id: "first_perfect", title: "Zéro Faute !", desc: "Fais un sans-faute 10/10 en mode Quiz", icon: "🥇", color: "bg-gradient-to-tr from-yellow-400 to-amber-500" },
+    { id: "streak_15", title: "Godmode", desc: "Enchaîne 15 bonnes réponses d'affilée", icon: "🔥", color: "bg-brandCoral" },
+    { id: "time_20", title: "Speedrunner", desc: "Marque 20 points en Speed Run", icon: "⚡", color: "bg-cyan-500" },
+    { id: "polyglotte", title: "Master Zoo", desc: "Débloque la catégorie Aquatique", icon: "👑", color: "bg-brandPurple" }
 ];
 
 // --- ALGORITHME DE RÉPÉTITION ESPACÉE ---
@@ -308,15 +308,14 @@ function updateLevelAndTitle() {
     
     if (levelEl) levelEl.innerText = pLevel;
 
-    let title = "Novice des Animaux";
-    if (pLevel >= 3) title = "Ami des Bêtes";
-    if (pLevel >= 6) title = "Explorateur de la Faune";
-    if (pLevel >= 9) title = "Zoologiste Avisé";
-    if (pLevel >= 12) title = "Maître de la Nature";
+    let title = "Novice de la Faune";
+    if (pLevel >= 3) title = "Dresseur / Tamer";
+    if (pLevel >= 6) title = "Ranger Émérite";
+    if (pLevel >= 9) title = "Aventurier Légendaire";
+    if (pLevel >= 12) title = "Dieu de la Nature 🐾";
 
     if (titleEl) titleEl.innerText = title;
     if (typeof updateLevelLockUI === 'function') updateLevelLockUI();
-}
 
 // --- MODULE DARK MODE (AJOUTÉ) ---
 function toggleDarkMode() {
