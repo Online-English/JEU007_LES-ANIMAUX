@@ -1,5 +1,5 @@
 // --- BASE DE DONNÉES CONSOLIDÉE (100 Animaux sur 5 Niveaux) ---
-const fruitsData = [
+const animalsData = [
     // NIVEAU 1 : Animaux domestiques & de la ferme (20 mots)
     { en: "Dog", fr: "Chien", emoji: "🐶", level: 1 },
     { en: "Cat", fr: "Chat", emoji: "🐱", level: 1 },
@@ -34,7 +34,7 @@ const fruitsData = [
     { en: "Squid", fr: "Calamar", emoji: "🦑", level: 2 },
     { en: "Jellyfish", fr: "Méduse", emoji: "🪼", level: 2 },
     { en: "Starfish", fr: "Étoile de mer", emoji: "⭐", level: 2 },
-    { en: "Seahorse", fr: "Hippocampe", emoji: "🐴", level: 2 },
+    { en: "Seahorse", fr: "Hippocampe", emoji: "🧜‍♀️", level: 2 },
     { en: "Seal", fr: "Phoque", emoji: "🦭", level: 2 },
     { en: "Walrus", fr: "Morse", emoji: "🦭", level: 2 },
     { en: "Penguin", fr: "Manchot / Pingouin", emoji: "🐧", level: 2 },
@@ -49,7 +49,7 @@ const fruitsData = [
     { en: "Owl", fr: "Hibou / Chouette", emoji: "🦉", level: 3 },
     { en: "Falcon", fr: "Faucon", emoji: "🦅", level: 3 },
     { en: "Crow", fr: "Corbeau", emoji: "🐦", level: 3 },
-    { en: "Swan", fr: "Cygne", emoji: "<b></b>🦢", level: 3 },
+    { en: "Swan", fr: "Cygne", emoji: "🦢", level: 3 },
     { en: "Flamingo", fr: "Flamant rose", emoji: "🦩", level: 3 },
     { en: "Peacock", fr: "Paon", emoji: "🦚", level: 3 },
     { en: "Bat", fr: "Chauve-souris", emoji: "🦇", level: 3 },
@@ -84,8 +84,8 @@ const fruitsData = [
     { en: "Panda", fr: "Panda", emoji: "🐼", level: 4 },
     { en: "Sloth", fr: "Paresseux", emoji: "🦥", level: 4 },
     { en: "Camel", fr: "Chameau", emoji: "🐪", level: 4 },
-    { en: "Hyena", fr: "Hyène", emoji: "🦧", level: 4 },
-    { en: "Ostrich", fr: "Autruche", emoji: "🦩", level: 4 },
+    { en: "Hyena", fr: "Hyène", emoji: "🐾", level: 4 },
+    { en: "Ostrich", fr: "Autruche", emoji: "🐦", level: 4 },
     { en: "Bear", fr: "Ours", emoji: "🐻", level: 4 },
 
     // NIVEAU 5 : Animaux de la forêt & zones polaires (20 mots)
@@ -106,21 +106,21 @@ const fruitsData = [
     { en: "Lizard", fr: "Lézard", emoji: "🦎", level: 5 },
     { en: "Chameleon", fr: "Caméléon", emoji: "🦎", level: 5 },
     { en: "Scorpion", fr: "Scorpion", emoji: "🦂", level: 5 },
-    { en: "Echidna", fr: "Echidné", emoji: "🦔", level: 5 }, // 🟢 Corrigé (Echidna)
-    { en: "Lynx", fr: "Lynx", emoji: "🐱", level: 5 },       // 🟢 Corrigé (Lynx)
-    { en: "Sea lion", fr: "Otarie", emoji: "🦭", level: 5 }   // 🟢 Corrigé (Sea lion)
+    { en: "Echidna", fr: "Echidné", emoji: "🦔", level: 5 }, 
+    { en: "Lynx", fr: "Lynx", emoji: "🐾", level: 5 },       
+    { en: "Sea lion", fr: "Otarie", emoji: "🦭", level: 5 }   
 ];
 
 // --- ÉTATS GÉNÉRAUX & STATISTIQUES ---
 let currentStreak = 0, maxStreak = 0, totalPoints = 0;
 let highScores = { quiz: 0, speak: 0, timeattack: 0 };
-let favoriteFruits = [];
+let favoriteAnimals = [];
 let errorHistory = []; 
 let unlockedBadges = []; 
 let audioSpeed = 1.0;
 let filterOnlyFavs = false;
 let searchDirection = 'EN_FR';
-let globalAudioCtx = null; // Instance unique partagée 
+let globalAudioCtx = null; 
 let selectedVocabularyLevel = 1; 
 
 // --- CONFIGURATION DES BADGES ---
@@ -133,7 +133,7 @@ const badgesDatabase = [
 
 // --- ALGORITHME DE RÉPÉTITION ESPACÉE ---
 function getNextExerciseWord() {
-    const currentLevelWords = fruitsData.filter(f => f.level === parseInt(selectedVocabularyLevel));
+    const currentLevelWords = animalsData.filter(f => f.level === parseInt(selectedVocabularyLevel));
     const currentLevelErrors = errorHistory.filter(err => err.level === parseInt(selectedVocabularyLevel));
 
     if (currentLevelErrors.length > 0 && Math.random() < 0.35) {
@@ -152,47 +152,32 @@ function checkAndUnlockBadge(badgeId) {
     }
 }
 
-// --- MODULE AUDIO DE HAUTE PRÉCISION (CORRIGÉ) ---
+// --- MODULE AUDIO ---
 let preferredVoice = null;
 
-// Fonction de sélection de la meilleure voix disponible sur l'appareil
 function initVoices() {
     if (!('speechSynthesis' in window)) return;
-    
     const voices = window.speechSynthesis.getVoices();
-    if (voices.length === 0) return; // Le navigateur n'est pas encore prêt
+    if (voices.length === 0) return;
 
-    // Stratégie de sélection en 3 étapes :
-    // 1. On cherche une voix anglaise moderne (Google, Natural, Neural ou Premium)
     let bestVoice = voices.find(voice => 
         voice.lang.toLowerCase().startsWith('en') && 
         (voice.name.includes('Google') || voice.name.includes('Natural') || voice.name.includes('Neural') || voice.name.includes('Premium'))
     );
-
-    // 2. Si pas trouvé, on cherche une voix anglaise qui n'est PAS une vieille voix "Desktop" de Microsoft
     if (!bestVoice) {
-        bestVoice = voices.find(voice => 
-            voice.lang.toLowerCase().startsWith('en') && !voice.name.includes('Desktop')
-        );
+        bestVoice = voices.find(voice => voice.lang.toLowerCase().startsWith('en') && !voice.name.includes('Desktop'));
     }
-
-    // 3. En dernier recours, on prend la première voix anglaise standard qui vient
     if (!bestVoice) {
         bestVoice = voices.find(voice => voice.lang.toLowerCase().startsWith('en'));
     }
-
-    // On mémorise la voix pour éviter de refaire la recherche à chaque clic
-    if (bestVoice) {
-        preferredVoice = bestVoice;
-    }
+    if (bestVoice) preferredVoice = bestVoice;
 }
 
-// Écouteur crucial : déclenché dès que le navigateur a fini de charger sa base de données vocales
 if ('speechSynthesis' in window) {
     if (window.speechSynthesis.onvoiceschanged !== undefined) {
         window.speechSynthesis.onvoiceschanged = initVoices;
     }
-    initVoices(); // Premier essai immédiat au cas où elles seraient déjà prêtes
+    initVoices();
 }
 
 function setAudioSpeed(speed) {
@@ -201,54 +186,37 @@ function setAudioSpeed(speed) {
     const btnSlow = document.getElementById('speed-slow');
     if (btnNormal && btnSlow) {
         if (speed === 1.0) {
-            btnNormal.className = "px-2 py-1 bg-brandBlue text-white rounded font-bold";
-            btnSlow.className = "px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded flex items-center gap-1";
+            btnNormal.className = "px-4 py-1.5 bg-brandPurple text-white rounded-lg font-black text-xs transition";
+            btnSlow.className = "px-4 py-1.5 text-slate-400 font-black text-xs rounded-lg flex items-center gap-1 transition hover:text-white";
         } else {
-            btnNormal.className = "px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded font-bold";
-            btnSlow.className = "px-2 py-1 bg-brandBlue text-white rounded flex items-center gap-1";
+            btnNormal.className = "px-4 py-1.5 text-slate-400 font-black text-xs rounded-lg flex items-center gap-1 transition hover:text-white";
+            btnSlow.className = "px-4 py-1.5 bg-brandPurple text-white rounded-lg font-black text-xs transition";
         }
     }
 }
 
 function playAudio(text) {
     if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel(); // Stoppe net toute lecture en cours
-        
+        window.speechSynthesis.cancel(); 
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'en-US';
         utterance.rate = audioSpeed;
-
-        // Si la voix n'a pas pu être choisie au démarrage, on fait une tentative de secours
         if (!preferredVoice) initVoices();
-
-        if (preferredVoice) {
-            utterance.voice = preferredVoice;
-        }
-
+        if (preferredVoice) utterance.voice = preferredVoice;
         window.speechSynthesis.speak(utterance);
     } else {
-        // Fallback ultime si l'appareil ne supporte aucune synthèse vocale native
         const encodedText = encodeURIComponent(text.toLowerCase());
         const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=en&client=tw-ob&q=${encodedText}`;
         const audio = new Audio(audioUrl);
         audio.playbackRate = audioSpeed;
-        audio.play().catch(e => console.log("Audio playback failed:", e));
+        audio.play().catch(e => console.log("Audio non déclenché :", e));
     }
 }
 
-
 function playSoundEffect(type) {
     if (!window.AudioContext && !window.webkitAudioContext) return;
-    
-    // Initialisation paresseuse au premier clic utilisateur
-    if (!globalAudioCtx) {
-        globalAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    
-    // Sort de la mise en veille si le navigateur avait bloqué le flux audio
-    if (globalAudioCtx.state === 'suspended') {
-        globalAudioCtx.resume();
-    }
+    if (!globalAudioCtx) globalAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (globalAudioCtx.state === 'suspended') globalAudioCtx.resume();
 
     const osc = globalAudioCtx.createOscillator();
     const gain = globalAudioCtx.createGain();
@@ -275,7 +243,7 @@ function triggerConfetti() {
         const confetti = document.createElement('div');
         confetti.className = 'confetti';
         confetti.style.left = Math.random() * 100 + 'vw';
-        confetti.style.backgroundColor = ['#F58634', '#52B788', '#1C3D5A', '#FFD166'][Math.floor(Math.random() * 4)];
+        confetti.style.backgroundColor = ['#FF2E93', '#10B981', '#8B5CF6', '#FFD166'][Math.floor(Math.random() * 4)];
         confetti.style.transform = `scale(${Math.random() * 0.8 + 0.5})`;
         confetti.style.animationDelay = Math.random() * 1.2 + 's';
         document.body.appendChild(confetti);
@@ -284,9 +252,9 @@ function triggerConfetti() {
 }
 
 // --- CARNET DE RÉVISIONS ---
-function registerError(fruitObj) {
-    if (!errorHistory.some(f => f.en === fruitObj.en)) {
-        errorHistory.push(fruitObj);
+function registerError(animalObj) {
+    if (!errorHistory.some(f => f.en === animalObj.en)) {
+        errorHistory.push(animalObj);
         localStorage.setItem('oe_error_history_anim', JSON.stringify(errorHistory));
     }
 }
@@ -300,7 +268,7 @@ function getUserPlayerLevel() {
     return Math.floor(totalPoints / 150) + 1;
 }
 
-// --- ADAPTATION DES TITRES (Zoologie) ---
+// --- ADAPTATION DES TITRES ---
 function updateLevelAndTitle() {
     const pLevel = getUserPlayerLevel();
     const levelEl = document.getElementById('user-level');
@@ -309,30 +277,31 @@ function updateLevelAndTitle() {
     if (levelEl) levelEl.innerText = pLevel;
 
     let title = "Novice de la Faune";
-    if (pLevel >= 3) title = "Dresseur / Tamer";
-    if (pLevel >= 6) title = "Ranger Émérite";
-    if (pLevel >= 9) title = "Aventurier Légendaire";
+    if (pLevel >= 3) title = "Dresseur Émérite";
+    if (pLevel >= 6) title = "Ranger Alpha";
+    if (pLevel >= 9) title = "Zoologue Légendaire";
     if (pLevel >= 12) title = "Dieu de la Nature 🐾";
 
     if (titleEl) titleEl.innerText = title;
     if (typeof updateLevelLockUI === 'function') updateLevelLockUI();
+} // <--- ACCÈS ET FERMETURE CORRIGÉS ICI !
 
-// --- MODULE DARK MODE (AJOUTÉ) ---
+// --- MODULE DARK MODE ---
 function toggleDarkMode() {
     const isDark = document.documentElement.classList.toggle('dark');
     localStorage.setItem('oe_dark_mode', isDark);
     const icon = document.getElementById('theme-icon');
     if (icon) {
-        icon.className = isDark ? "fa-solid fa-sun text-yellow-300" : "fa-solid fa-moon text-yellow-300";
+        icon.className = isDark ? "fa-solid fa-sun text-yellow-300 text-lg" : "fa-solid fa-moon text-yellow-300 text-lg";
     }
 }
 
-// --- RÉINITIALISATION DES STATISTIQUES (AJOUTÉ) ---
+// --- RÉINITIALISATION DES STATISTIQUES ---
 function resetStats() {
-    if (confirm("Êtes-vous sûr de vouloir réinitialiser toutes vos statistiques et votre progression Faune ?")) {
+    if (confirm("Reset ton compte et effacer tes accomplissements de dresseur ?")) {
         const keysToRemove = ['oe_total_points_anim', 'oe_high_quiz_anim', 'oe_high_speak_anim', 'oe_high_timeattack_anim', 'oe_max_streak_anim', 'oe_fav_anim', 'oe_error_history_anim', 'oe_unlocked_badges_anim'];
         keysToRemove.forEach(key => localStorage.removeItem(key));
-        totalPoints = 0; highScores = { quiz: 0, speak: 0, timeattack: 0 }; maxStreak = 0; currentStreak = 0; errorHistory = []; unlockedBadges = []; favoriteFruits = [];
+        totalPoints = 0; highScores = { quiz: 0, speak: 0, timeattack: 0 }; maxStreak = 0; currentStreak = 0; errorHistory = []; unlockedBadges = []; favoriteAnimals = [];
         document.getElementById('total-points').innerText = totalPoints;
         document.getElementById('streak-count').innerText = currentStreak;
         document.getElementById('stat-high-quiz').innerText = 0;
@@ -344,7 +313,7 @@ function resetStats() {
         if (typeof updateFlashcard === 'function') updateFlashcard();
         if (typeof renderBadgesUI === 'function') renderBadgesUI();
         if (typeof renderErrorHistory === 'function') renderErrorHistory();
-        alert("Statistiques Faune réinitialisées !");
+        alert("Profil remis à zéro ! Back to level 1.");
     }
 }
 
@@ -362,14 +331,14 @@ function loadStats() {
     highScores.speak = parseInt(localStorage.getItem('oe_high_speak_anim')) || 0; 
     highScores.timeattack = parseInt(localStorage.getItem('oe_high_timeattack_anim')) || 0;
     maxStreak = parseInt(localStorage.getItem('oe_max_streak_anim')) || 0;
-    favoriteFruits = JSON.parse(localStorage.getItem('oe_fav_anim')) || [];
+    favoriteAnimals = JSON.parse(localStorage.getItem('oe_fav_anim')) || [];
     errorHistory = JSON.parse(localStorage.getItem('oe_error_history_anim')) || [];
     unlockedBadges = JSON.parse(localStorage.getItem('oe_unlocked_badges_anim')) || [];
     
     if (localStorage.getItem('oe_dark_mode') === 'true') {
         document.documentElement.classList.add('dark');
         const icon = document.getElementById('theme-icon');
-        if (icon) icon.className = "fa-solid fa-sun text-yellow-300";
+        if (icon) icon.className = "fa-solid fa-sun text-yellow-300 text-lg";
     }
     const totalPointsEl = document.getElementById('total-points');
     if (totalPointsEl) totalPointsEl.innerText = totalPoints;
