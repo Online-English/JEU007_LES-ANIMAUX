@@ -106,9 +106,9 @@ const fruitsData = [
     { en: "Lizard", fr: "Lézard", emoji: "🦎", level: 5 },
     { en: "Chameleon", fr: "Caméléon", emoji: "🦎", level: 5 },
     { en: "Scorpion", fr: "Scorpion", emoji: "🦂", level: 5 },
-    { en: "Koala", fr: "Echidné", emoji: "🦔", level: 5 },
-    { en: "Beaver", fr: "Lynx", emoji: "🐱", level: 5 },
-    { en: "Seal", fr: "Otarie", emoji: "🦭", level: 5 }
+    { en: "Echidna", fr: "Echidné", emoji: "🦔", level: 5 }, // 🟢 Corrigé (Echidna)
+    { en: "Lynx", fr: "Lynx", emoji: "🐱", level: 5 },       // 🟢 Corrigé (Lynx)
+    { en: "Sea lion", fr: "Otarie", emoji: "🦭", level: 5 }   // 🟢 Corrigé (Sea lion)
 ];
 
 // --- ÉTATS GÉNÉRAUX & STATISTIQUES ---

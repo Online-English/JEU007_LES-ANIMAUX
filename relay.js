@@ -2,17 +2,17 @@
 let slideshowTimeout = null;
 let isSlideshowActive = false;
 let currentFlashIndex = 0;
-let quizTimeout = null;  // AJOUTÉ : Sécurise les transitions du quiz classique
-let speakTimeout = null; // AJOUTÉ : Sécurise les transitions de la prononciation
+let quizTimeout = null;  
+let speakTimeout = null; 
 
 let quizStep = 1, quizScore = 0, currentQuizItem = null;
-let currentSpeakItem = null, speakScore = 0; // CORRIGÉ : Bonnes variables déclarées ici
+let currentSpeakItem = null, speakScore = 0; 
 let selectedEnglishNode = null, selectedFrenchNode = null;
-let isProcessingMatch = false; // AJOUTÉ : Sécurité anti-clics abusifs
+let isProcessingMatch = false; 
 
-// Variables pour le mode Contre-la-montre (Time Attack)
+// 🟢 VARIABLES DE CONTRE-LA-MONTRE NETTOYÉES SANS DOUBLONS
 let taTimerInterval = null;
-let taTimeout = null;
+let taTimeout = null; 
 let taTimeLeft = 60;
 let taScore = 0;
 let currentTAItem = null;
